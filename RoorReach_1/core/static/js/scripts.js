@@ -1,0 +1,154 @@
+// scripts.js
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile Menu Toggle
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navLinks = document.getElementById('nav-links');
+
+    if (mobileMenu && navLinks) {
+        mobileMenu.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+        });
+    }
+
+    // Toast Notification Function
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Cart Management (Placeholder)
+    function updateCartCount() {
+        const cart = JSON.parse(localStorage.getItem('rootreachCart')) || [];
+        const cartCount = document.getElementById('cart-count');
+        if (cartCount) {
+            cartCount.textContent = cart.length;
+            cartCount.style.display = cart.length > 0 ? 'inline' : 'none';
+        }
+    }
+
+    function addToCart(productId) {
+        let cart = JSON.parse(localStorage.getItem('rootreachCart')) || [];
+        const existingItem = cart.find(item => item.id === productId);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ id: productId, quantity: 1 });
+        }
+        localStorage.setItem('rootreachCart', JSON.stringify(cart));
+        updateCartCount();
+        showToast('Added to cart!');
+    }
+
+    // Expose functions to global scope if needed
+    window.showToast = showToast;
+    window.addToCart = addToCart;
+    window.updateCartCount = updateCartCount;
+
+    // Initial cart update
+    updateCartCount();
+
+    // Category Slider
+    const categories = document.querySelectorAll('.category-card');
+    const itemsPerSlide = 6;
+    const totalSlides = Math.ceil(categories.length / itemsPerSlide);
+    let currentSlide = 0;
+
+    // Create slides
+    function initializeSlides() {
+        const slider = document.querySelector('.category-slider');
+        const slides = [];
+        
+        for (let i = 0; i < totalSlides; i++) {
+            const slide = document.createElement('div');
+            slide.className = `category-slide ${i === 0 ? 'active' : ''}`;
+            
+            // Get categories for this slide
+            const start = i * itemsPerSlide;
+            const end = start + itemsPerSlide;
+            const slideCategories = Array.from(categories).slice(start, end);
+            
+            slideCategories.forEach(category => {
+                slide.appendChild(category.cloneNode(true));
+            });
+            
+            slider.appendChild(slide);
+        }
+
+        // Create dots
+        const dotsContainer = document.querySelector('.category-dots');
+        dotsContainer.innerHTML = '';
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('span');
+            dot.className = `category-dot ${i === 0 ? 'active' : ''}`;
+            dot.addEventListener('click', () => goToSlide(i));
+            dotsContainer.appendChild(dot);
+        }
+    }
+
+    function goToSlide(slideIndex) {
+        const slides = document.querySelectorAll('.category-slide');
+        const dots = document.querySelectorAll('.category-dot');
+        
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        slides[slideIndex].classList.add('active');
+        dots[slideIndex].classList.add('active');
+        currentSlide = slideIndex;
+    }
+
+    // Navigation handlers
+    document.querySelector('.category-prev').addEventListener('click', () => {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        goToSlide(currentSlide);
+    });
+
+    document.querySelector('.category-next').addEventListener('click', () => {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        goToSlide(currentSlide);
+    });
+
+    // Initialize the slider
+    initializeSlides();
+});
+
+// Toast CSS (to be added to styles.css if not present)
+const toastStyles = `
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 8px;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1000;
+    }
+
+    .toast-success {
+        background-color: var(--primary);
+    }
+
+    .toast-error {
+        background-color: #f44336;
+    }
+
+    .toast.show {
+        opacity: 1;
+    }
+`;
+
+// Note: Add this to styles.css manually if not already included
+console.log("Add the following toast styles to styles.css if not present:\n", toastStyles);

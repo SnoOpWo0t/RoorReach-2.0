@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - My Orders{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --gradient-primary: linear-gradient(135deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+        --gradient-secondary: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%);
+        /* Updated colors for order statuses */
+        --gradient-success: linear-gradient(120deg, #2ecc71, #27ae60);
+        --gradient-warning: linear-gradient(120deg, #f1c40f, #f39c12);
+        --gradient-danger: linear-gradient(to right, #ff416c, #ff4b2b);
+        --gradient-pending: linear-gradient(120deg, #4158D0, #0093E9);  /* Blue gradient for pending */
+        --gradient-shipped: linear-gradient(120deg, #00c6fb, #80D0C7);  /* Sky blue gradient for shipped */
+        --gradient-delivered: linear-gradient(120deg, #2ecc71, #27ae60); /* Green gradient for delivered */
+        --gradient-confirmed: linear-gradient(120deg, #e67e22, #d35400);
+        --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    }
+
+    body {
+        background: white;
+        min-height: 100vh;
+    }
+
+    .seller-orders-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 40px auto;
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--box-shadow);
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        background: var(--gradient-secondary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+        padding-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background: var(--gradient-secondary);
+        border-radius: 2px;
+    }
+
+    .status-filter-buttons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+    }
+
+    .status-filter-btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .status-active {
+        background: var(--gradient-secondary);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 147, 233, 0.2);
+    }
+
+    .status-inactive {
+        background: white;
+        color: #4158D0;
+        border: 1px solid rgba(65, 88, 208, 0.2);
+    }
+
+    .status-inactive:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(65, 88, 208, 0.1);
+    }
+
+    .orders-table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: white;
+    }
+
+    .orders-table th {
+        background: var(--gradient-secondary);
+        color: white;
+        padding: 1.2rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+
+    .orders-table td {
+        padding: 1.2rem 1rem;
+        border-bottom: 1px solid rgba(65, 88, 208, 0.1);
+        vertical-align: middle;
+    }
+
+    .orders-table tr:hover {
+        background: rgba(65, 88, 208, 0.05);
+    }
+
+    .status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .status-pending {
+        background: var(--gradient-pending);
+        color: white;
+    }
+
+    .status-shipped {
+        background: var(--gradient-shipped);
+        color: white;
+    }
+
+    .status-delivered {
+        background: var(--gradient-delivered);
+        color: white;
+    }
+
+    .status-cancelled {
+        background: var(--gradient-danger);
+        color: white;
+    }
+
+    .status-confirmed {
+        background: var(--gradient-confirmed);
+        color: white;
+    }
+
+    .status-select {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: 1px solid rgba(65, 88, 208, 0.2);
+        background-color: white;
+        color: #4158D0;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .status-select:focus {
+        outline: none;
+        border-color: #4158D0;
+        box-shadow: 0 0 0 2px rgba(65, 88, 208, 0.1);
+    }
+
+    .update-status-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: var(--gradient-secondary);
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-left: 0.5rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .update-status-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 147, 233, 0.2);
+    }
+
+    .update-status-btn:disabled {
+        background: linear-gradient(135deg, #ccc, #999);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .cancel-link {
+        color: #ff416c;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .cancel-link:hover {
+        background: rgba(255, 65, 108, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .empty-orders {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #4a5568;
+    }
+
+    .empty-orders i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .status-update-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(65, 88, 208, 0.1);
+        border-top: 2px solid #4158D0;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 0.5rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Glass morphism effect */
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .seller-orders-container {
+            padding: 1rem;
+            margin: 1rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .orders-table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .status-filter-buttons {
+            padding: 0.5rem;
+        }
+
+        .status-filter-btn {
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="seller-orders-container">
+        <h2 class="section-title">
+            <i class="fas fa-box"></i>
+            My Orders
+        </h2>
+
+        <div class="status-filter-buttons glass-effect">
+            <a href="{% url 'seller_orders' %}" class="status-filter-btn {% if not status_filter %}status-active{% else %}status-inactive{% endif %}">
+                <i class="fas fa-th-list"></i> All
+            </a>
+            <a href="?status=pending" class="status-filter-btn {% if status_filter == 'pending' %}status-active{% else %}status-inactive{% endif %}">
+                <i class="fas fa-clock"></i> Pending
+            </a>
+            <a href="?status=confirmed" class="status-filter-btn {% if status_filter == 'confirmed' %}status-active{% else %}status-inactive{% endif %}">
+                <i class="fas fa-check"></i> Confirmed
+            </a>
+            <a href="?status=shipped" class="status-filter-btn {% if status_filter == 'shipped' %}status-active{% else %}status-inactive{% endif %}">
+                <i class="fas fa-shipping-fast"></i> Shipped
+            </a>
+            <a href="?status=delivered" class="status-filter-btn {% if status_filter == 'delivered' %}status-active{% else %}status-inactive{% endif %}">
+                <i class="fas fa-box-check"></i> Delivered
+            </a>
+            <a href="?status=cancelled" class="status-filter-btn {% if status_filter == 'cancelled' %}status-active{% else %}status-inactive{% endif %}">
+                <i class="fas fa-times"></i> Cancelled
+            </a>
+        </div>
+
+        <div class="orders-table-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in orders %}
+                        <tr>
+                            <td>{{ o.product.name }}</td>
+                            <td>{{ o.quantity }}</td>
+                            <td>
+                                <span class="status status-{{ o.status|lower }}" id="status-badge-{{ o.id }}">
+                                    {{ o.status|title }}
+                                </span>
+
+                                {% if o.status != 'cancelled' and o.status != 'delivered' %}
+                                    <form method="POST" action="{% url 'update_order_status' o.id %}" class="status-update-form" style="display: inline-block; margin-left: 10px;">
+                                        {% csrf_token %}
+                                        <select name="status" class="status-select" data-order-id="{{ o.id }}">
+                                            <option value="pending" {% if o.status == 'pending' %}selected{% endif %}>Pending</option>
+                                            <option value="confirmed" {% if o.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                            <option value="shipped" {% if o.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                            <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                        </select>
+                                        <button type="submit" class="update-status-btn" id="update-btn-{{ o.id }}">
+                                            <i class="fas fa-sync-alt"></i> Update
+                                        </button>
+                                        <div class="status-update-spinner" id="spinner-{{ o.id }}"></div>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if o.status != 'cancelled' and o.status != 'delivered' %}
+                                    <a href="{% url 'cancel_order' o.id %}" class="cancel-link">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                {% else %}
+                                    <span class="status status-{{ o.status|lower }}">{{ o.status|title }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-orders">
+                                <i class="fas fa-box-open"></i>
+                                <p>No orders available at the moment.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cancel order confirmation
+        document.querySelectorAll('.cancel-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to cancel this order?')) {
+                    window.showToast('Order cancelled successfully!', 'success');
+                    window.location.href = this.getAttribute('href');
+                }
+            });
+        });
+
+        // Status update handling
+        document.querySelectorAll('.status-update-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const orderId = this.querySelector('.status-select').dataset.orderId;
+                const statusSelect = this.querySelector('.status-select');
+                const updateBtn = document.getElementById(`update-btn-${orderId}`);
+                const spinner = document.getElementById(`spinner-${orderId}`);
+                const statusBadge = document.getElementById(`status-badge-${orderId}`);
+                
+                // Disable form elements and show spinner
+                statusSelect.disabled = true;
+                updateBtn.disabled = true;
+                spinner.style.display = 'inline-block';
+
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update status badge
+                        statusBadge.className = `status status-${data.status.toLowerCase()}`;
+                        statusBadge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                        
+                        // Show success message
+                        window.showToast('Order status updated successfully!', 'success');
+
+                        // If status is delivered or cancelled, reload page to update UI
+                        if (data.status === 'delivered' || data.status === 'cancelled') {
+                            window.location.reload();
+                        }
+                    } else {
+                        window.showToast('Failed to update status!', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.showToast('Failed to update status!', 'error');
+                })
+                .finally(() => {
+                    // Re-enable form elements and hide spinner
+                    statusSelect.disabled = false;
+                    updateBtn.disabled = false;
+                    spinner.style.display = 'none';
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

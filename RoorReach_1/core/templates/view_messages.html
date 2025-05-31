@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - All Messages{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>All Messages</h2>
+
+    {% for item in order_messages %}
+        <div class="message-section">
+            <h3>{{ item.product.name }} - ৳{{ item.product.discounted_price|default:item.product.price }}</h3>
+            <p>Stock: {{ item.product.stock }}</p>
+
+            {% for message in item.messages %}
+                <div class="message-box">
+                    <p class="message-meta">
+                        <strong>From:</strong>
+                        {% if message.buyer %}
+                            {{ message.buyer.username }}
+                        {% else %}
+                            {{ message.seller.username }}
+                        {% endif %}
+                        | {{ message.timestamp|date:"Y-m-d H:i" }}
+                    </p>
+                    <p class="message-text">{{ message.message }}</p>
+                </div>
+            {% endfor %}
+
+            <!-- Reply Form -->
+            <form action="{% url 'reply_message' item.product.id %}" method="POST" class="reply-form">
+                {% csrf_token %}
+                <textarea name="reply_message" rows="4" class="form-control" placeholder="Write your reply..." required></textarea><br>
+                <button type="submit" class="btn btn-primary">Send Reply</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>No messages yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

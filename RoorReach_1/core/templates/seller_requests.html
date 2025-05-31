@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Seller Requests{% endblock %}
+
+{% block extra_css %}
+<style>
+    .seller-requests-container {
+        margin: 40px 0;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .section-title {
+        background: linear-gradient(135deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-size: 2rem;
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid;
+        border-image: linear-gradient(to right, #4158D0, #C850C0) 1;
+        display: inline-block;
+    }
+
+    .requests-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .request-item {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        margin-bottom: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: fadeIn 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    .request-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
+    }
+
+    .request-item strong {
+        color: #4158D0;
+        font-size: 1.2rem;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .request-item p {
+        margin: 12px 0;
+        color: #444;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .request-item p strong {
+        display: inline;
+        font-size: inherit;
+        color: #C850C0;
+    }
+
+    .request-item img {
+        max-width: 150px;
+        border-radius: 10px;
+        margin: 15px 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .request-item img:hover {
+        transform: scale(1.05);
+    }
+
+    .request-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .request-actions a {
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .approve-link {
+        background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        color: white;
+    }
+
+    .approve-link:hover {
+        background: linear-gradient(135deg, #76e1a0 0%, #7bc8e9 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(132, 250, 176, 0.4);
+    }
+
+    .reject-link {
+        background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        color: white;
+    }
+
+    .reject-link:hover {
+        background: linear-gradient(135deg, #f53b64 0%, #f54428 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 65, 108, 0.4);
+    }
+
+    .no-requests {
+        text-align: center;
+        padding: 30px;
+        color: #666;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        font-size: 1.1rem;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="seller-requests-container">
+        <h2 class="section-title"><i class="fas fa-users"></i> Seller Requests</h2>
+
+        {% if requests %}
+            <ul class="requests-list">
+                {% for req in requests %}
+                    <li class="request-item">
+                        <strong>{{ req.shop_name }}</strong> - {{ req.email }}
+                        <p><strong>Location:</strong> {{ req.location }}</p>
+                        <p><strong>Tax ID:</strong> {{ req.tax_id }}</p>
+                        <p><strong>Category:</strong> {{ req.category }}</p>
+                        <p><strong>Application:</strong> {{ req.application_text }}</p>
+                        <img src="{{ req.shop_image.url }}" alt="{{ req.shop_name }} Shop Image">
+                        <div class="request-actions">
+                            <a href="{% url 'approve_seller' req.id %}" class="approve-link"><i class="fas fa-check"></i> Approve</a>
+                            <a href="{% url 'reject_seller' req.id %}" class="reject-link"><i class="fas fa-times"></i> Reject</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-requests">No pending requests.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Approve/Reject confirmation
+        document.querySelectorAll('.approve-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to approve this seller?')) {
+                    window.showToast('Seller approved successfully!', 'success');
+                    window.location.href = this.getAttribute('href');
+                }
+            });
+        });
+
+        document.querySelectorAll('.reject-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to reject this seller?')) {
+                    window.showToast('Seller rejected!', 'success');
+                    window.location.href = this.getAttribute('href');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

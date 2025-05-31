@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Search Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #0057b7;
+        --accent-color: #ffd700;
+        --blue-gradient: linear-gradient(135deg, #0057b7, #00a3bf);
+        --card-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        --card-hover-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    }
+
+    /* Main Layout */
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 15px;
+        display: flex;
+        flex-direction: row;
+        gap: 30px;
+    }
+
+    /* Search Section */
+    .search-sidebar {
+        flex: 0 0 300px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        height: fit-content;
+    }
+
+    .search-sidebar h3 {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--accent-color);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group input, 
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .btn-apply {
+        width: 100%;
+        padding: 10px;
+        background: var(--blue-gradient);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-apply:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Results Section */
+    .results-container {
+        flex: 1;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .results-title {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    /* Product Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .product-card:hover {
+        box-shadow: var(--card-hover-shadow);
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .product-details {
+        padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .product-name {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .product-price {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+
+    .product-meta {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .btn-view {
+        flex: 1;
+        padding: 8px 0;
+        text-align: center;
+        background: #f0f0f0;
+        color: var(--primary-color);
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cart {
+        flex: 1;
+        padding: 8px 0;
+        text-align: center;
+        background: var(--blue-gradient);
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view:hover {
+        background: #e0e0e0;
+    }
+
+    .btn-cart:hover {
+        transform: translateY(-2px);
+    }
+
+    .no-results {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 40px;
+        background: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-container {
+            flex-direction: column;
+        }
+        
+        .search-sidebar {
+            flex: none;
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <!-- Search Sidebar -->
+    <div class="search-sidebar">
+        <h3>Refine Search</h3>
+        <form method="GET" class="filter-form">
+            <div class="form-group">
+                <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
+            </div>
+            <div class="form-group">
+                <input type="number" name="min" placeholder="Minimum Price" value="{{ request.GET.min }}">
+            </div>
+            <div class="form-group">
+                <input type="number" name="max" placeholder="Maximum Price" value="{{ request.GET.max }}">
+            </div>
+            <div class="form-group">
+                <input type="text" name="region" placeholder="Region" value="{{ request.GET.region }}">
+            </div>
+            <div class="form-group">
+                <select name="stock">
+                    <option value="">Stock Status</option>
+                    <option value="available" {% if request.GET.stock == "available" %}selected{% endif %}>In Stock</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select name="sort">
+                    <option value="">Sort By</option>
+                    <option value="low" {% if request.GET.sort == "low" %}selected{% endif %}>Price: Low to High</option>
+                    <option value="high" {% if request.GET.sort == "high" %}selected{% endif %}>Price: High to Low</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-apply">APPLY FILTERS</button>
+        </form>
+    </div>
+
+    <!-- Results Container -->
+    <div class="results-container">
+        <div class="results-header">
+            <h2 class="results-title">Search Results</h2>
+        </div>
+        
+        <div class="product-grid">
+            {% for product in products %}
+                <div class="product-card">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" alt="{{ product.name }}" class="product-image">
+                    {% endif %}
+                    
+                    <div class="product-details">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-price">৳{{ product.discounted_price|default:product.price }}</p>
+                        
+                        <div class="product-meta">
+                            <div><strong>Seller:</strong> {{ product.seller.username }}</div>
+                            <div><strong>Region:</strong> {{ product.region }}</div>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' product.id %}" class="btn-view">View Details</a>
+                            {% if product.stock > 0 %}
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn-cart" data-product-id="{{ product.id }}">Add to Cart</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-results">
+                    <i class="fas fa-search" style="font-size: 2rem; color: #0052cc; margin-bottom: 1rem;"></i>
+                    <p>No products found matching your criteria.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add to Cart functionality
+        document.querySelectorAll('.btn-cart').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                {% if not user.is_authenticated %}
+                    window.showToast('Please sign in to add items to your cart', 'info');
+                    setTimeout(() => {
+                        window.location.href = "{% url 'login' %}";
+                    }, 1500);
+                    return;
+                {% endif %}
+
+                const productId = this.getAttribute('data-product-id');
+                
+                // Client-side cart update
+                let cart = JSON.parse(localStorage.getItem('rootreachCart')) || [];
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({ id: productId, quantity: 1 });
+                }
+                localStorage.setItem('rootreachCart', JSON.stringify(cart));
+                window.updateCartCount();
+                window.showToast('Added to cart!');
+
+                // Redirect to server-side add-to-cart URL
+                window.location.href = this.getAttribute('href');
+            });
+        });
+    });
+</script>
+{% endblock %}

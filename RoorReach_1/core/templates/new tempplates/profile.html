@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        margin: 40px 0;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .profile-header {
+        background-color: var(--primary);
+        color: var(--text-light);
+        padding: 15px 20px;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        text-align: center;
+    }
+
+    .profile-form {
+        background-color: var(--gray-light);
+        padding: 20px;
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+
+    .profile-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .profile-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .profile-form input,
+    .profile-form textarea,
+    .profile-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--gray-medium);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+
+    .profile-form input[type="file"] {
+        padding: 5px;
+    }
+
+    .profile-form input:focus,
+    .profile-form textarea:focus,
+    .profile-form select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 5px rgba(30, 136, 229, 0.3);
+    }
+
+    .profile-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .seller-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .seller-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <h2><i class="fas fa-user"></i> Update Profile</h2>
+        </div>
+
+        <!-- Profile Form -->
+        <div class="profile-form">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="error" style="color: #f44336; font-size: 14px;">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="profile-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                    {% if not user.is_seller %}
+                        <a href="{% url 'apply_seller' %}" class="seller-link"><i class="fas fa-store"></i> Apply as Seller</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form submission feedback
+        document.querySelector('.profile-form form').addEventListener('submit', function() {
+            window.showToast('Profile updated successfully!', 'success');
+        });
+    });
+</script>
+{% endblock %}

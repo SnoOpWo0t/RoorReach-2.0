@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add Category - RootReach{% endblock %}
+
+{% block extra_css %}
+<style>
+    .add-category-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: linear-gradient(145deg, #ffffff, #f5f7fa);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .category-header {
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        color: white;
+        padding: 25px 20px;
+        text-align: center;
+        position: relative;
+    }
+
+    .category-header h2 {
+        margin: 0;
+        font-size: 28px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .category-header i {
+        margin-right: 10px;
+        font-size: 24px;
+    }
+
+    .category-form {
+        background-color: white;
+        padding: 30px;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background-color: #f8fafc;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        background-color: white;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+    }
+
+    .back-link {
+        display: inline-block;
+        color: #4a90e2;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        font-size: 15px;
+    }
+
+    .back-link:hover {
+        color: #357abd;
+        text-decoration: none;
+        transform: translateX(-3px);
+    }
+
+    .back-link i {
+        margin-right: 5px;
+    }
+
+    /* Animation for form submission feedback */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .toast {
+        animation: fadeIn 0.3s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="add-category-container">
+        <div class="category-header">
+            <h2><i class="fas fa-folder-plus"></i> Add New Category</h2>
+        </div>
+
+        <div class="category-form">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.name.label_tag }}
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <p class="error">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                {% if next %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Add Category
+                </button>
+            </form>
+
+            <a href="{{ next|default:'/' }}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Cancel and go back
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.category-form form').addEventListener('submit', function() {
+            window.showToast('Category added successfully!', 'success');
+        });
+    });
+</script>
+{% endblock %}

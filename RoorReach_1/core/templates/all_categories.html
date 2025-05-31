@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}All Categories - RootReach{% endblock %}
+
+{% block extra_css %}
+<style>
+    .all-categories {
+        padding: 40px 0;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: var(--background);
+        border-radius: var(--border-radius);
+    }
+
+    .page-title {
+        color: var(--text-dark);
+        margin-bottom: 10px;
+        font-size: 32px;
+    }
+
+    .page-subtitle {
+        color: var(--gray-medium);
+        font-size: 16px;
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+        padding: 20px;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+        min-height: 180px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 25px;
+        cursor: pointer;
+        border: 1px solid var(--gray-light);
+        text-decoration: none;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary);
+    }
+
+    .category-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+        color: var(--primary);
+        background: var(--background);
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .category-card:hover .category-icon {
+        background: var(--primary);
+        color: white;
+    }
+
+    .category-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin: 0 0 10px 0;
+        transition: color 0.3s ease;
+    }
+
+    .category-count {
+        font-size: 14px;
+        color: var(--gray-medium);
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .category-count i {
+        font-size: 12px;
+    }
+
+    .category-description {
+        color: var(--gray-medium);
+        font-size: 14px;
+        margin-top: 10px;
+        line-height: 1.4;
+    }
+
+    .search-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background: var(--gray-light);
+        border-radius: var(--border-radius);
+    }
+
+    .search-form {
+        display: flex;
+        gap: 15px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid var(--gray-medium);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+
+    .search-button {
+        padding: 12px 25px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .search-button:hover {
+        background: var(--primary-dark);
+    }
+
+    @media (max-width: 768px) {
+        .categories-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .category-card {
+            min-height: 150px;
+            padding: 15px;
+        }
+
+        .category-icon {
+            font-size: 32px;
+            width: 60px;
+            height: 60px;
+        }
+
+        .search-form {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="all-categories">
+        <div class="page-header">
+            <h1 class="page-title">Browse All Categories</h1>
+            <p class="page-subtitle">Find products across all our categories</p>
+        </div>
+
+        <div class="search-section">
+            <form class="search-form" method="GET">
+                <input type="text" class="search-input" name="search" placeholder="Search categories..." value="{{ request.GET.search }}">
+                <button type="submit" class="search-button">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+
+        <div class="categories-grid">
+            {% for category in categories %}
+                <a href="{% url 'category_products' category.id %}" class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-{% if category.name|lower == 'food' %}utensils{% elif category.name|lower == 'electronics' %}microchip{% elif category.name|lower == 'clothing' %}tshirt{% elif category.name|lower == 'books' %}book{% elif category.name|lower == 'furniture' %}couch{% else %}box{% endif %}"></i>
+                    </div>
+                    <h4 class="category-name">{{ category.name }}</h4>
+                    <p class="category-count">
+                        <i class="fas fa-box"></i>
+                        {{ category.product_count }} Products
+                    </p>
+                    <p class="category-description">
+                        Browse our selection of {{ category.name|lower }} products
+                    </p>
+                </a>
+            {% empty %}
+                <div class="no-categories">
+                    <p>No categories found.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Optional: Add search form submission feedback
+        document.querySelector('.search-form').addEventListener('submit', function() {
+            window.showToast('Searching categories...', 'info');
+        });
+    });
+</script>
+{% endblock %}

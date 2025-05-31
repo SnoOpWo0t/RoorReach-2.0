@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}RootReach - Buyer Order Messages{% endblock %}
+
+{% block extra_css %}
+<style>
+    .messages-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+        text-align: center;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        height: 4px;
+        width: 80px;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        border-radius: 2px;
+    }
+
+    .message-section {
+        background: linear-gradient(145deg, #ffffff, #f5f7fa);
+        padding: 30px;
+        margin-bottom: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .message-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 2px solid rgba(74, 144, 226, 0.1);
+        margin-bottom: 25px;
+    }
+
+    .product-info h3 {
+        font-size: 1.4rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .product-meta {
+        font-size: 1rem;
+        color: #64748b;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .product-meta span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .product-meta i {
+        color: #4a90e2;
+    }
+
+    .message-thread {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 20px 0;
+        margin-bottom: 25px;
+        scrollbar-width: thin;
+        scrollbar-color: #4a90e2 #f1f5f9;
+    }
+
+    .message-thread::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .message-thread::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+
+    .message-thread::-webkit-scrollbar-thumb {
+        background: #4a90e2;
+        border-radius: 3px;
+    }
+
+    .message-box {
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        position: relative;
+        max-width: 85%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .message-box.sender {
+        margin-left: auto;
+        background: linear-gradient(145deg, #4a90e2, #357abd);
+        color: white;
+    }
+
+    .message-box.receiver {
+        margin-right: auto;
+        background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+        color: #1e293b;
+    }
+
+    .message-meta {
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sender .message-meta {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .receiver .message-meta {
+        color: #64748b;
+    }
+
+    .message-text {
+        line-height: 1.5;
+        font-size: 1rem;
+    }
+
+    .reply-form {
+        background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+        padding: 25px;
+        border-radius: 12px;
+        margin-top: 25px;
+        border: 2px solid rgba(74, 144, 226, 0.1);
+    }
+
+    .reply-form h4 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .reply-form h4 i {
+        color: #4a90e2;
+    }
+
+    .reply-form textarea {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 100px;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+
+    .reply-form textarea:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
+
+    .reply-form button {
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        color: white;
+        font-size: 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .reply-form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+    }
+
+    .reply-form button i {
+        font-size: 1.1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+        border-radius: 15px;
+        margin: 40px 0;
+        border: 2px dashed rgba(74, 144, 226, 0.2);
+    }
+
+    .empty-state p {
+        font-size: 1.2rem;
+        color: #64748b;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .empty-state i {
+        color: #4a90e2;
+        font-size: 1.4rem;
+    }
+
+    @media (max-width: 768px) {
+        .messages-container {
+            padding: 0 15px;
+        }
+
+        .message-box {
+            max-width: 95%;
+        }
+
+        .product-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .product-info {
+            margin-bottom: 15px;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="messages-container">
+    <h2 class="page-title"><i class="fas fa-comments"></i> Messages for Your Orders</h2>
+
+    {% for item in order_messages %}
+        <div class="message-section">
+            <div class="product-header">
+                <div class="product-info">
+                    <h3><i class="fas fa-box"></i> {{ item.product.name }}</h3>
+                    <div class="product-meta">
+                        <span><i class="fas fa-tag"></i> ৳{{ item.product.discounted_price|default:item.product.price }}</span>
+                        <span><i class="fas fa-cubes"></i> Stock: {{ item.product.stock }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="message-thread">
+                {% for message in item.messages %}
+                    <div class="message-box {% if message.buyer %}sender{% else %}receiver{% endif %}">
+                        <div class="message-meta">
+                            <span>
+                                <i class="fas {% if message.buyer %}fa-user{% else %}fa-store{% endif %}"></i>
+                                {% if message.buyer %}
+                                    You
+                                {% else %}
+                                    {{ message.seller.username }}
+                                {% endif %}
+                            </span>
+                            <span><i class="far fa-clock"></i> {{ message.timestamp|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="message-text">{{ message.message }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="reply-form">
+                <h4><i class="fas fa-reply"></i> Reply to Seller</h4>
+                <form action="{% url 'buyer_reply_to_message' item.product.id %}" method="POST">
+                    {% csrf_token %}
+                    <textarea name="reply" placeholder="Type your message here..." required></textarea>
+                    <button type="submit">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <p><i class="fas fa-inbox"></i> You don't have any messages yet.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

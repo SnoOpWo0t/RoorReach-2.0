@@ -1,0 +1,573 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RootReach{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        :root {
+            --primary: #0052cc;
+            --secondary: #00a3bf;
+            --accent: #ffd700;
+            --light: #f0f8ff;
+            --dark: #1a1a1a;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-spinner {
+            width: 50px; height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 0.75rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        .navbar {
+            width: 100%;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-left {
+            flex: 0 0 200px;
+        }
+
+        .nav-center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 2rem;
+            margin-right: 2rem;
+        }
+
+        .nav-right {
+            flex: 0 0 300px;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: #ffd700;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--accent);
+        }
+
+        .cart-count-badge {
+            background: var(--accent);
+            color: var(--dark);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            margin-left: 0.2rem;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+        }
+
+        .search-form {
+            width: 100%;
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.5rem;
+            border-radius: 25px;
+        }
+
+        .search-form input {
+            background: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            width: 100%;
+            min-width: 200px;
+            outline: none;
+        }
+
+        .search-form button {
+            background: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .search-form button:hover {
+            transform: scale(1.05);
+            background: #e6c200;
+        }
+
+        .profile-nav-item {
+            margin-left: 1rem;
+        }
+
+        .profile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .profile-nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-nav-picture {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ffd700;
+        }
+
+        .profile-nav-text {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        @media (max-width: 1200px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+
+            .nav-left {
+                flex: 0 0 150px;
+            }
+
+            .nav-center {
+                gap: 1.5rem;
+                margin-right: 1.5rem;
+            }
+            
+            .nav-right {
+                flex: 0 0 250px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .nav-center {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .nav-center {
+                gap: 1rem;
+                margin-right: 1rem;
+            }
+
+            .nav-link span {
+                display: none;
+            }
+
+            .nav-link i {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .logo {
+                text-align: center;
+                margin-bottom: 0.5rem;
+                justify-content: center;
+            }
+
+            .nav-left, .nav-center, .nav-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-center {
+                order: 2;
+                margin: 0;
+            }
+
+            .nav-right {
+                order: 1;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .cart-count-badge {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+            }
+        }
+
+        /* Logout Button Styles */
+        .logout-container {
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .logout-btn {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--accent);
+        }
+
+        /* Enhanced Footer Styles */
+        .footer {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 4rem 0 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        .footer-section {
+            padding: 1rem;
+        }
+
+        .footer-title {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 50px;
+            height: 2px;
+            background: #ffd700;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-links a:hover {
+            color: #ffd700;
+        }
+
+        .footer-section .fab {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: var(--light);
+            transition: color 0.3s ease;
+        }
+
+        .footer-section .fab:hover {
+            color: #ffd700;
+        }
+
+        .become-seller-btn {
+            background: var(--accent);
+            color: var(--dark) !important;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: transform 0.2s !important;
+        }
+
+        .become-seller-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <nav class="navbar">
+        <!-- Left Section -->
+        <div class="nav-left">
+            <h1><a href="{% url 'home' %}" class="logo">🌿 Root<span>Reach</span></a></h1>
+        </div>
+
+        <!-- Center Section -->
+        <div class="nav-center">
+            {% if user.is_authenticated %}
+                {% if user.is_superuser %}
+                    <a href="{% url 'seller_requests' %}" class="nav-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Seller Requests</span>
+                    </a>
+                {% endif %}
+                {% if user.is_seller %}
+                    <a href="{% url 'sell_zone' %}" class="nav-link">
+                        <i class="fas fa-store"></i>
+                        <span>Sell Zone</span>
+                    </a>
+                {% endif %}
+                <a href="{% url 'order_tracking' %}" class="nav-link">
+                    <i class="fas fa-box"></i>
+                    <span>Order </span>
+                </a>
+                
+                <a href="{% url 'cart' %}" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
+                    {% if cart_item_count > 0 %}
+                        <span class="cart-count-badge">{{ cart_item_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="{% url 'logout' %}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+
+                <div class="profile-nav-item">
+                    <a href="{% url 'profile' %}" class="profile-nav-link">
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="Profile Picture" class="profile-nav-picture">
+                        {% else %}
+                            <div class="profile-nav-text">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </div>
+                        {% endif %}
+                    </a>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </a>
+                <a href="{% url 'register' %}" class="nav-link">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Sign Up</span>
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Right Section -->
+        <div class="nav-right">
+            <div class="search-container">
+                <form method="get" action="{% url 'search_products' %}" class="search-form">
+                    <input type="text" name="q" placeholder="Search products..." class="form-control">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="loading-overlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<main>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3 class="footer-title">
+                    <span style="color: white;">Root</span><span style="color: #ffd700;">Reach</span>
+                  </h3>
+                  
+                <p>Your one-stop shop for all your needs. We connect buyers with trusted sellers around the world.</p>
+                <div style="margin-top: 20px;">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title" style="color: white;">Quick Links</h3>
+
+                <ul class="footer-links">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="{% url 'about' %}">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title" style="color: white;">Customer Service</h3>
+
+
+                <ul class="footer-links">
+                    <li><a href="{% url 'all_policies' %}">All Policies</a></li>
+                    <li><a href="{% url 'terms_conditions' %}">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 class="footer-title" style="color: #fffffff4;">Contact Us</h3>
+
+                <ul class="footer-links">
+                    <li>
+                        <a href="{% url 'apply_seller_status' %}" class="become-seller-btn" data-is-authenticated="{{ user.is_authenticated|yesno:'true,false' }}">
+                            <i class="fa-solid fa-shop"></i> Become a Seller
+                        </a>
+                    </li>
+                    <li><i class="fas fa-map-marker-alt"></i> Jessore, Khulna Bangladesh</li>
+                    <li><i class="fas fa-phone"></i> +880175749956 </li>
+                    <li><i class="fas fa-envelope"></i> <a href="mailto:support@rootreach.com">support@rootreach.com</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 RootReach. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="{% static 'js/scripts.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navLinks = document.getElementById('nav-links');
+
+        if (mobileMenu) {
+            mobileMenu.addEventListener('click', function () {
+                navLinks.classList.toggle('active');
+            });
+        }
+
+        // Handle Become a Seller button click
+        const sellerBtn = document.querySelector('.become-seller-btn');
+        if (sellerBtn) {
+            sellerBtn.addEventListener('click', function(e) {
+                if (this.dataset.isAuthenticated !== 'true') {
+                    e.preventDefault();
+                    alert("You need to be signed in to become a seller. ...");
+                    window.location.href = "{% url 'login' %}?next={% url 'apply_seller_status' %}";
+                }
+            });
+        }
+
+        // Handle guest cart fallback
+        {% if not user.is_authenticated %}
+        const cartCount = document.querySelector('.cart-count-badge');
+        if (cartCount) {
+            const guestCart = JSON.parse(localStorage.getItem('rootreachCart') || '[]');
+            if (guestCart.length) {
+                cartCount.textContent = guestCart.length;
+                cartCount.style.display = 'inline-block';
+            }
+        }
+        {% endif %}
+    });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

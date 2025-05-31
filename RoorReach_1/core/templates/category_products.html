@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} - RootReach{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #0057b7;
+        --accent-color: #ffd700;
+        --blue-gradient: linear-gradient(135deg, #0057b7, #00a3bf);
+        --card-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        --card-hover-shadow: 0 5px 25px rgba(0,0,0,0.15);
+    }
+
+    /* Main Layout */
+    .search-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 15px;
+        display: flex;
+        flex-direction: row;
+        justify-content: center; /* Center the child elements horizontally */
+        align-items: flex-start; /* Align items to the top */
+        gap: 30px;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        flex: 0 0 300px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: var(--card-shadow);
+        height: fit-content;
+    }
+
+    .filter-section h3 {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--accent-color);
+    }
+
+    .filter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .filter-form .form-group {
+        margin-bottom: 15px;
+    }
+
+    .filter-form input,
+    .filter-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .filter-form input:focus,
+    .filter-form select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .btn-apply {
+        width: 100%;
+        padding: 10px;
+        background: var(--blue-gradient);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-apply:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Results Section */
+    .results-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center the content within results-section */
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        width: 100%; /* Ensure header spans the full width */
+        max-width: 1000px; /* Match the product-list width for consistency */
+    }
+
+    .category-title {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .product-count {
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* Product Grid */
+    .product-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        width: 100%;
+        max-width: 1000px; /* Adjusted for 3 cards of 320px each + gaps */
+        justify-items: center; /* Center the grid items horizontally */
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        max-width: 320px; /* Increased card width */
+        min-width: 200px; /* Prevent cards from collapsing */
+    }
+
+    .product-card:hover {
+        box-shadow: var(--card-hover-shadow);
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 15px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .product-name {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .product-price {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+
+    .product-meta {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+        padding: 10px 15px;
+    }
+
+    .product-actions a {
+        flex: 1;
+        padding: 8px 0;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .product-actions .view-details {
+        background: #f0f0f0;
+        color: var(--primary-color);
+    }
+
+    .product-actions .add-to-cart {
+        background: var(--blue-gradient);
+        color: white;
+    }
+
+    .product-actions .view-details:hover {
+        background: #e0e0e0;
+    }
+
+    .product-actions .add-to-cart:hover {
+        transform: translateY(-2px);
+    }
+
+    .no-products {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        grid-column: 1 / -1;
+        background: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 992px) {
+        .product-list {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 660px; /* Adjusted for 2 cards of 320px each + gap */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .search-container {
+            flex-direction: column;
+            align-items: center; /* Center the filter section and results section */
+        }
+        .filter-section {
+            flex: none;
+            width: 100%;
+            max-width: 660px; /* Match product-list width for centering */
+        }
+        .product-list {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 660px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .product-list {
+            grid-template-columns: 1fr;
+            max-width: 320px; /* Adjusted for 1 card of 320px */
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <h3>Filters</h3>
+        <form method="get" class="filter-form">
+            <div class="form-group">
+                <input type="text" name="q" placeholder="Search in {{ category.name }}..." value="{{ request.GET.q }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="number" name="min" placeholder="Min Price" value="{{ request.GET.min }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="number" name="max" placeholder="Max Price" value="{{ request.GET.max }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <input type="text" name="region" placeholder="Region" value="{{ request.GET.region }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <select name="stock" class="form-control">
+                    <option value="">--Stock--</option>
+                    <option value="in" {% if request.GET.stock == "in" %}selected{% endif %}>In Stock</option>
+                    <option value="out" {% if request.GET.stock == "out" %}selected{% endif %}>Out of Stock</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select name="sort" class="form-control">
+                    <option value="">--Sort--</option>
+                    <option value="asc" {% if request.GET.sort == "asc" %}selected{% endif %}>Price Low → High</option>
+                    <option value="desc" {% if request.GET.sort == "desc" %}selected{% endif %}>Price High → Low</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-apply">Apply Filters</button>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section">
+        <div class="results-header">
+            <div>
+                <h1 class="category-title">{{ category.name }}</h1>
+                <p class="product-count">{{ products.count }} Products Available</p>
+            </div>
+        </div>
+        <div class="product-list">
+            {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    <div class="product-info">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-price">৳{{ product.discounted_price|default:product.price }}</p>
+                        <div class="product-meta">
+                            <div>Seller: {{ product.seller.username }}</div>
+                            <div>Region: {{ product.region }}</div>
+                            {% if product.stock > 0 %}
+                                <div>In Stock ({{ product.stock }} available)</div>
+                            {% else %}
+                                <div class="text-danger">Out of Stock</div>
+                            {% endif %}
+                        </div>
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' product.id %}" class="view-details">View Details</a>
+                            {% if product.stock > 0 %}
+                                <a href="{% url 'add_to_cart' product.id %}" class="add-to-cart" data-product-id="{{ product.id }}">Add to Cart</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="no-products">
+                    <p>No products found in this category.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle add to cart button clicks
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                {% if not user.is_authenticated %}
+                    window.showToast('Please sign in to add items to your cart', 'info');
+                    setTimeout(() => {
+                        window.location.href = "{% url 'login' %}";
+                    }, 1500);
+                    return;
+                {% endif %}
+
+                const url = this.getAttribute('href');
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.showToast('Added to cart!', 'success');
+                        window.updateCartCount();
+                    }
+                });
+            });
+        });
+
+        // Add filter form submission feedback
+        document.querySelector('.filter-form').addEventListener('submit', function() {
+            window.showToast('Applying filters...', 'info');
+        });
+    });
+</script>
+{% endblock %}

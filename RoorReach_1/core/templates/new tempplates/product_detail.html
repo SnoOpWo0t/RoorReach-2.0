@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - {{ product.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-detail-container {
+        margin: 40px 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .product-image {
+        max-width: 100%;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+
+    .product-info {
+        padding: 20px;
+    }
+
+    .product-info h2 {
+        color: var(--primary);
+        margin-bottom: 20px;
+    }
+
+    .product-info p {
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+
+    .product-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .stock-available {
+        color: #4caf50;
+        font-weight: 500;
+    }
+
+    .stock-out {
+        color: #f44336;
+        font-weight: 500;
+    }
+
+    .reviews-section {
+        margin-top: 40px;
+    }
+
+    .review-list {
+        list-style: none;
+        margin-top: 20px;
+    }
+
+    .review-list li {
+        background-color: var(--gray-light);
+        padding: 15px;
+        border-radius: var(--border-radius);
+        margin-bottom: 15px;
+        box-shadow: var(--box-shadow);
+    }
+
+    .review-list img {
+        max-width: 100px;
+        border-radius: var(--border-radius);
+        margin-top: 10px;
+    }
+
+    .review-form {
+        margin-top: 30px;
+        background-color: var(--gray-light);
+        padding: 20px;
+        border-radius: var(--border-radius);
+    }
+
+    .review-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .review-form input,
+    .review-form textarea,
+    .review-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--gray-medium);
+        border-radius: var(--border-radius);
+        margin-bottom: 15px;
+    }
+
+    .rating-stars {
+        color: var(--secondary);
+        margin-right: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .product-detail-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="product-detail-container">
+        <!-- Product Image -->
+        <div>
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+        </div>
+
+        <!-- Product Information -->
+        <div class="product-info">
+            <h2>{{ product.name }}</h2>
+            <p><strong>Price:</strong> ৳{{ product.discounted_price|default:product.price }}</p>
+            <p><strong>Stock:</strong> 
+                <span class="{% if product.stock > 0 %}stock-available{% else %}stock-out{% endif %}">
+                    {% if product.stock > 0 %}Available{% else %}Out of Stock{% endif %}
+                </span>
+            </p>
+            <p><strong>Seller:</strong> {{ product.seller.username }} | <strong>Region:</strong> {{ product.region }}</p>
+            <p>{{ product.description }}</p>
+
+            <div class="product-actions">
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary add-to-cart" data-product-id="{{ product.id }}">Add to Cart</a>
+                <a href="{% url 'product_chat' product.id %}" class="btn btn-outline"><i class="fas fa-comment"></i> Chat with Seller</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h3>Reviews ({{ reviews.count }})</h3>
+        <ul class="review-list">
+            {% for review in reviews %}
+                <li>
+                    <div>
+                        <span class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        by {{ review.reviewer.username }}
+                    </div>
+                    <p>{{ review.comment }}</p>
+                    {% if review.image %}
+                        <img src="{{ review.image.url }}" alt="Review Image">
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No reviews yet.</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Review Form -->
+        {% if user.is_authenticated %}
+            <div class="review-form">
+                <h4>Submit Your Review</h4>
+                <form method="POST" enctype="multipart/form-data" action="{% url 'submit_review' product.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_rating">Rating</label>
+                        {{ review_form.rating }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_comment">Comment</label>
+                        {{ review_form.comment }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_image">Image (Optional)</label>
+                        {{ review_form.image }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add to Cart functionality
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                
+                // Client-side cart update
+                let cart = JSON.parse(localStorage.getItem('rootreachCart')) || [];
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({ id: productId, quantity: 1 });
+                }
+                localStorage.setItem('rootreachCart', JSON.stringify(cart));
+                window.updateCartCount();
+                window.showToast('Added to cart!');
+
+                // Redirect to server-side add-to-cart URL
+                window.location.href = this.getAttribute('href');
+            });
+        });
+    });
+</script>
+{% endblock %}

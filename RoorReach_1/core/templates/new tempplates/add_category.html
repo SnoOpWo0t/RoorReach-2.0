@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Add New Category{% endblock %}
+
+{% block extra_css %}
+<style>
+    .add-category-container {
+        margin: 40px 0;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .category-header {
+        background-color: var(--primary);
+        color: var(--text-light);
+        padding: 15px 20px;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        text-align: center;
+    }
+
+    .category-form {
+        background-color: var(--gray-light);
+        padding: 20px;
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+
+    .category-form .form-group {
+        margin-bottom: 20px;
+    }
+
+    .category-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .category-form input,
+    .category-form textarea,
+    .category-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--gray-medium);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+
+    .category-form input:focus,
+    .category-form textarea:focus,
+    .category-form select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 5px rgba(30, 136, 229, 0.3);
+    }
+
+    .category-form button {
+        width: 100%;
+        padding: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="add-category-container">
+        <!-- Category Header -->
+        <div class="category-header">
+            <h2><i class="fas fa-plus-circle"></i> Add New Category</h2>
+        </div>
+
+        <!-- Category Form -->
+        <div class="category-form">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="error" style="color: #f44336; font-size: 14px;">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form submission feedback
+        document.querySelector('.category-form form').addEventListener('submit', function() {
+            window.showToast('Category added successfully!', 'success');
+        });
+    });
+</script>
+{% endblock %}

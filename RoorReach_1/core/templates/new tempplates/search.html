@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Search Results{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        margin: 40px 0;
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 30px;
+    }
+
+    .filter-section {
+        background-color: var(--gray-light);
+        padding: 20px;
+        border-radius: var(--border-radius);
+    }
+
+    .filter-section h3 {
+        color: var(--primary);
+        margin-bottom: 15px;
+    }
+
+    .filter-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .filter-form select {
+        padding: 10px;
+        border: 1px solid var(--gray-medium);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+
+    .results-section {
+        padding: 20px;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .product-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        background-color: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-card h4 {
+        color: var(--primary);
+        margin-bottom: 10px;
+    }
+
+    .product-card p {
+        margin-bottom: 10px;
+        color: var(--text-dark);
+    }
+
+    .product-card a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .product-card a:hover {
+        text-decoration: underline;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 20px;
+        color: var(--gray-dark);
+    }
+
+    @media (max-width: 768px) {
+        .search-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="search-container">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h3>Filters</h3>
+            <form method="GET" class="filter-form">
+                <div class="form-group">
+                    <input type="text" name="q" placeholder="Search..." value="{{ request.GET.q }}" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="number" name="min" placeholder="Min Price" value="{{ request.GET.min }}" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="number" name="max" placeholder="Max Price" value="{{ request.GET.max }}" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="region" placeholder="Region" value="{{ request.GET.region }}" class="form-control">
+                </div>
+                <div class="form-group">
+                    <select name="stock" class="form-control">
+                        <option value="">--Stock--</option>
+                        <option value="available" {% if request.GET.stock == "available" %}selected{% endif %}>In Stock</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select name="sort" class="form-control">
+                        <option value="">--Sort--</option>
+                        <option value="low" {% if request.GET.sort == "low" %}selected{% endif %}>Price Low → High</option>
+                        <option value="high" {% if request.GET.sort == "high" %}selected{% endif %}>Price High → Low</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <div class="results-header">
+                <h2 class="section-title">Search Results</h2>
+            </div>
+            <div class="product-list">
+                {% for product in products %}
+                    <div class="product-card">
+                        <h4>{{ product.name }}</h4>
+                        <p>৳{{ product.discounted_price|default:product.price }}</p>
+                        <a href="{% url 'product_detail' product.id %}">View Product</a>
+                    </div>
+                {% empty %}
+                    <p class="no-results">No products found matching your criteria.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Optional: Add filter form submission feedback
+        document.querySelector('.filter-form').addEventListener('submit', function() {
+            window.showToast('Filters applied!', 'success');
+        });
+    });
+</script>
+{% endblock %}

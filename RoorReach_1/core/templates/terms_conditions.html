@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Terms & Conditions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .terms-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        background: linear-gradient(145deg, #ffffff, #f5f7fa);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .terms-header {
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+        position: relative;
+    }
+
+    .terms-header h2 {
+        font-size: 2.2rem;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .terms-header i {
+        font-size: 2rem;
+    }
+
+    .terms-content {
+        padding: 40px;
+        color: #2c3e50;
+    }
+
+    .terms-content h3 {
+        color: #2c3e50;
+        margin: 30px 0 20px;
+        font-size: 1.6rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(74, 144, 226, 0.1);
+    }
+
+    .terms-content h3:first-child {
+        margin-top: 0;
+    }
+
+    .terms-content h3 i {
+        color: #4a90e2;
+        font-size: 1.4rem;
+    }
+
+    .terms-content p {
+        margin-bottom: 20px;
+        line-height: 1.6;
+        color: #475569;
+        font-size: 1.1rem;
+    }
+
+    .terms-content ul {
+        margin: 20px 0;
+        padding-left: 0;
+        list-style: none;
+    }
+
+    .terms-content li {
+        margin-bottom: 15px;
+        padding-left: 25px;
+        position: relative;
+        color: #475569;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .terms-content li::before {
+        content: '•';
+        color: #4a90e2;
+        position: absolute;
+        left: 0;
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+
+    .terms-content strong {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .terms-content a {
+        color: #4a90e2;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .terms-content a:hover {
+        color: #357abd;
+        text-decoration: underline;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .section-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    @media (max-width: 768px) {
+        .terms-container {
+            margin: 20px;
+        }
+
+        .terms-header h2 {
+            font-size: 1.8rem;
+        }
+
+        .terms-content {
+            padding: 25px;
+        }
+
+        .terms-content h3 {
+            font-size: 1.4rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="terms-container">
+        <div class="terms-header">
+            <h2><i class="fas fa-file-contract"></i> Terms & Conditions</h2>
+        </div>
+
+        <div class="terms-content">
+            <div class="section-card">
+                <h3><i class="fas fa-check-circle"></i> 1. Acceptance of Terms</h3>
+                <p>By accessing or using RootReach, you agree to be bound by these Terms and Conditions. If you do not agree, please do not use our services.</p>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fas fa-user-shield"></i> 2. User Accounts</h3>
+                <p>You are responsible for maintaining the confidentiality of your account and password.</p>
+                <ul>
+                    <li><strong>Registration:</strong> You must provide accurate and complete information during registration.</li>
+                    <li><strong>Security:</strong> Notify us immediately of any unauthorized use of your account.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fas fa-shopping-cart"></i> 3. Purchases and Payments</h3>
+                <p>All purchases are subject to our payment and shipping policies.</p>
+                <ul>
+                    <li><strong>Pricing:</strong> Prices are subject to change without notice.</li>
+                    <li><strong>Payment:</strong> We accept major credit cards and other secure payment methods.</li>
+                    <li><strong>Taxes:</strong> Applicable taxes will be added at checkout.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fas fa-store"></i> 4. Seller Responsibilities</h3>
+                <p>Sellers on RootReach must adhere to our guidelines.</p>
+                <ul>
+                    <li><strong>Product Listings:</strong> Listings must be accurate and not misleading.</li>
+                    <li><strong>Order Fulfillment:</strong> Sellers are responsible for timely fulfillment and shipping.</li>
+                </ul>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fas fa-shield-alt"></i> 5. Limitation of Liability</h3>
+                <p>RootReach is not liable for any indirect, incidental, or consequential damages arising from the use of our services.</p>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fas fa-sync"></i> 6. Changes to Terms</h3>
+                <p>We reserve the right to update these Terms and Conditions at any time. Changes will be effective upon posting to the site.</p>
+            </div>
+
+            <div class="section-card">
+                <h3><i class="fas fa-envelope"></i> 7. Contact Us</h3>
+                <p>For questions about these Terms, contact us at <a href="mailto:support@rootreach.com">support@rootreach.com</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

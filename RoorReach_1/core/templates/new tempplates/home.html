@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Carousel Styles */
+    .carousel {
+        background-color: var(--gray-light);
+        padding: 20px;
+        border-radius: var(--border-radius);
+        text-align: center;
+        margin: 20px 0;
+        color: var(--primary);
+        font-weight: 500;
+    }
+
+    /* Categories Section */
+    .categories {
+        margin: 40px 0;
+    }
+
+    .category-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* Filter Form */
+    .filter-form {
+        background-color: var(--gray-light);
+        padding: 20px;
+        border-radius: var(--border-radius);
+        margin-bottom: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .filter-form select {
+        padding: 10px;
+        border: 1px solid var(--gray-medium);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+
+    /* Products Section */
+    .products {
+        margin: 40px 0;
+    }
+
+    .product-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .card {
+        background-color: var(--background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card img {
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--border-radius);
+        margin-bottom: 15px;
+    }
+
+    .card h4 {
+        color: var(--primary);
+        margin-bottom: 10px;
+    }
+
+    .card p {
+        margin-bottom: 10px;
+        color: var(--text-dark);
+    }
+
+    .card a {
+        color: var(--primary);
+        text-decoration: none;
+        margin: 0 5px;
+        font-weight: 500;
+    }
+
+    .card a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="section-title">Welcome to RootReach</h2>
+
+    <!-- Ads Carousel (Placeholder) -->
+    <div class="carousel">
+        <p>🛍️ Seasonal Sale! 50% Off Select Items!</p>
+    </div>
+
+    <!-- Category Cards -->
+    <div class="categories">
+        <h3>Browse Categories</h3>
+        <div class="category-list">
+            {% for category in categories %}
+                <form method="get" action="{% url 'home' %}" style="display:inline;">
+                    <input type="hidden" name="category" value="{{ category.id }}">
+                    <button type="submit" class="btn">{{ category.name }}</button>
+                </form>
+            {% empty %}
+                <p>No categories found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <form method="get" class="filter-form">
+        <div class="form-group">
+            <input type="text" name="q" placeholder="Search..." value="{{ request.GET.q }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="min" placeholder="Min Price" value="{{ request.GET.min }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="max" placeholder="Max Price" value="{{ request.GET.max }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="region" placeholder="Region" value="{{ request.GET.region }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <select name="stock" class="form-control">
+                <option value="">--Stock--</option>
+                <option value="in" {% if request.GET.stock == "in" %}selected{% endif %}>In Stock</option>
+                <option value="out" {% if request.GET.stock == "out" %}selected{% endif %}>Out of Stock</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select name="sort" class="form-control">
+                <option value="">--Sort--</option>
+                <option value="asc" {% if request.GET.sort == "asc" %}selected{% endif %}>Price Low → High</option>
+                <option value="desc" {% if request.GET.sort == "desc" %}selected{% endif %}>Price High → Low</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <!-- Product Cards -->
+    <div class="products">
+        <h3>Featured Products</h3>
+        <div class="product-list">
+            {% for product in products %}
+                <div class="card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" width="100" />
+                    <h4>{{ product.name }}</h4>
+                    <p>৳{{ product.discounted_price|default:product.price }}</p>
+                    <p><strong>Seller:</strong> {{ product.seller.username }}</p>
+                    <p><strong>Origin:</strong> {{ product.region }}</p>
+                    <div>
+                        <a href="{% url 'product_detail' product.id %}">View</a> |
+                        <a href="{% url 'add_to_cart' product.id %}" class="add-to-cart" data-product-id="{{ product.id }}">Add to Cart</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No products available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add to Cart functionality
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-product-id');
+                
+                // Client-side cart update (placeholder)
+                let cart = JSON.parse(localStorage.getItem('rootreachCart')) || [];
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({ id: productId, quantity: 1 });
+                }
+                localStorage.setItem('rootreachCart', JSON.stringify(cart));
+                window.updateCartCount();
+                window.showToast('Added to cart!');
+
+                // Redirect to server-side add-to-cart URL
+                window.location.href = this.getAttribute('href');
+            });
+        });
+    });
+</script>
+{% endblock %}

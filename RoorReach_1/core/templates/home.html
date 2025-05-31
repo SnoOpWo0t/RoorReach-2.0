@@ -1,0 +1,593 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Carousel Styles */
+    .carousel-container {
+        width: 100%;
+        position: relative;
+        margin: 20px 0;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+    }
+
+    .carousel-slide {
+        display: none;
+        width: 100%;
+    }
+
+    .carousel-slide.active {
+        display: block;
+    }
+
+    .carousel-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: var(--border-radius);
+    }
+
+    .carousel-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .carousel-dots {
+        text-align: center;
+        position: absolute;
+        bottom: 20px;
+        width: 100%;
+    }
+
+    .dot {
+        height: 10px;
+        width: 10px;
+        margin: 0 5px;
+        background-color: #bbb;
+        border-radius: 50%;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+    .dot.active {
+        background-color: var(--primary);
+    }
+
+    /* Previous and Next buttons */
+    .carousel-prev, .carousel-next {
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 16px;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        transition: 0.3s ease;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.3);
+        user-select: none;
+        text-decoration: none;
+    }
+
+    .carousel-next {
+        right: 15px;
+    }
+
+    .carousel-prev {
+        left: 15px;
+    }
+
+    .carousel-prev:hover, .carousel-next:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Categories Section */
+    .categories {
+        margin: 40px 0;
+        padding: 20px 0;
+        position: relative;
+    }
+
+    .categories h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        color: var(--text-dark);
+    }
+
+    .category-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 0 15px;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 15px;
+        cursor: pointer;
+        border: 1px solid #eee;
+    }
+
+    .category-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+        color: var(--primary);
+    }
+
+    .category-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .category-count {
+        font-size: 12px;
+        color: var(--gray-medium);
+        margin-top: 5px;
+    }
+
+    .category-card {
+        position: relative;
+    }
+
+    .category-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+
+    .view-all-categories {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .view-all-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background: var(--primary);
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .view-all-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Filter Form */
+    .filter-form {
+        background-color: var(--gray-light);
+        padding: 20px;
+        border-radius: var(--border-radius);
+        margin-bottom: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .filter-form select {
+        padding: 10px;
+        border: 1px solid var(--gray-medium);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+
+    /* Products Section */
+    .products {
+        margin: 40px 0;
+    }
+
+    .product-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: var(--background);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        text-align: left;
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 12px 12px 0 0;
+        margin-bottom: 0;
+    }
+
+    .card-content {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card h4 {
+        color: #000000;
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .price-section {
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .original-price {
+        text-decoration: line-through;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .discounted-price {
+        color: #2ecc71;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .rating-stars {
+        color: #f5c518;
+        margin: 8px 0;
+        font-size: 1rem;
+    }
+
+    .product-meta {
+        margin: 10px 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .product-meta span {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .card-actions {
+        margin-top: auto;
+        padding: 15px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .view-btn {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 8px 15px;
+        border-radius: 6px;
+        border: 1px solid var(--primary);
+        transition: all 0.2s ease;
+    }
+
+    .view-btn:hover {
+        background-color: var(--primary);
+        color: white;
+    }
+
+    .add-to-cart {
+        color: white;
+        background-color: var(--primary);
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: 1px solid var(--primary);
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        flex-grow: 1;
+    }
+
+    .add-to-cart:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+
+    .out-of-stock {
+        color: #e74c3c;
+        font-weight: 500;
+        padding: 8px 15px;
+        border-radius: 6px;
+        border: 1px solid #e74c3c;
+        text-align: center;
+        flex-grow: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="section-title">Welcome to RootReach</h2>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Modern Image Carousel -->
+    <div class="carousel-container">
+        <div class="carousel-slide active">
+            <img src="{% static 'images/carousel/gram-bangla02.jpg' %}" alt="Bengali Crafts" class="carousel-image">
+            <div class="carousel-content">
+                <h2>Traditional Bengali Products</h2>
+                <p>Authentic handcrafted treasures from local artisans</p>
+            </div>
+        </div>
+        <div class="carousel-slide">
+            <img src="{% static 'images/carousel/furniture.webp' %}" alt="Local Furniture" class="carousel-image">
+            <div class="carousel-content">
+                <h2>Premium Furniture</h2>
+                <p>Quality wooden furniture crafted in Jessore</p>
+            </div>
+        </div>
+        <div class="carousel-slide">
+            <img src="{% static 'images/carousel/slide3.jpg' %}" alt="Festival Specials" class="carousel-image"
+                onerror="this.src='https://via.placeholder.com/1200x400/6c5ce7/ffffff?text=Festival+Specials'">
+            <div class="carousel-content">
+                <h2>Festival Collection</h2>
+                <p>Special offers on traditional festival items</p>
+            </div>
+        </div>
+        <div class="carousel-slide">
+            <img src="{% static 'images/carousel/festival.webp' %}" alt="New Festival Celebration" class="carousel-image"
+                onerror="this.src='https://via.placeholder.com/1200x400/6c5ce7/ffffff?text=New+Festival+Collection'">
+            <div class="carousel-content">
+                <h2>New Festival Arrivals</h2>
+                <p>Discover our latest festival collection</p>
+            </div>
+        </div>
+
+        <a class="carousel-prev">❮</a>
+        <a class="carousel-next">❯</a>
+
+        <div class="carousel-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>s
+    </div>
+
+    <!-- Category Cards -->
+    <div class="categories">
+        <h3>Popular Categories</h3>
+        <div class="category-list">
+            {% for category in categories %}
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h4 class="category-name">{{ category.name }}</h4>
+                    <p class="category-count">{{ category.product_count }} Products</p>
+                    <a href="{% url 'category_products' category.id %}" class="category-link"></a>
+                </div>
+            {% empty %}
+                <p>No categories found.</p>
+            {% endfor %}
+        </div>
+        <div class="view-all-categories">
+            <a href="{% url 'categories' %}" class="view-all-btn">View All Categories</a>
+        </div>
+    <!-- </div> -->
+
+    <!-- Filter Form -->
+    <form method="get" class="filter-form">
+        <div class="form-group">
+            <input type="text" name="q" placeholder="Search..." value="{{ request.GET.q }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="min" placeholder="Min Price" value="{{ request.GET.min }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="max" placeholder="Max Price" value="{{ request.GET.max }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <input type="text" name="region" placeholder="Region" value="{{ request.GET.region }}" class="form-control">
+        </div>
+        <div class="form-group">
+            <select name="stock" class="form-control">
+                <option value="">--Stock--</option>
+                <option value="in" {% if request.GET.stock == "in" %}selected{% endif %}>In Stock</option>
+                <option value="out" {% if request.GET.stock == "out" %}selected{% endif %}>Out of Stock</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select name="sort" class="form-control">
+                <option value="">--Sort--</option>
+                <option value="asc" {% if request.GET.sort == "asc" %}selected{% endif %}>Price Low → High</option>
+                <option value="desc" {% if request.GET.sort == "desc" %}selected{% endif %}>Price High → Low</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <!-- Product Cards -->
+    <div class="products">
+        <h3>Featured Products</h3>
+        <div class="product-list">
+            {% for product in products %}
+                <div class="card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+                    <div class="card-content">
+                        <h4>{{ product.name }}</h4>
+                        
+                        <div class="price-section">
+                            {% if product.discounted_price %}
+                                <span class="original-price">৳{{ product.price }}</span>
+                                <span class="discounted-price">৳{{ product.discounted_price }}</span>
+                            {% else %}
+                                <span class="discounted-price">৳{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="rating-stars">
+                            {% with avg=product.avg_rating|default:0 %}
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avg %}
+                                        <span>★</span>
+                                    {% else %}
+                                        <span style="color: #ddd;">☆</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endwith %}
+                        </div>
+
+                        <div class="product-meta">
+                            <span><i class="fas fa-user"></i> {{ product.seller.username }}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{ product.region }}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <a href="{% url 'product_detail' product.id %}" class="view-btn">View Details</a>
+                        {% if product.seller != request.user %}
+                            {% if product.stock > 0 %}
+                                <a href="{% url 'add_to_cart' product.id %}" class="add-to-cart" data-product-id="{{ product.id }}">Add to Cart</a>
+                            {% else %}
+                                <span class="out-of-stock">Out of Stock</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p>No products available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let slideIndex = 0;
+        const slides = document.getElementsByClassName("carousel-slide");
+        const dots = document.getElementsByClassName("dot");
+
+        // Auto advance slides
+        function showSlides() {
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+                dots[i].classList.remove("active");
+            }
+            slideIndex++;
+            if (slideIndex > slides.length) {slideIndex = 1}
+            slides[slideIndex-1].style.display = "block";
+            dots[slideIndex-1].classList.add("active");
+            setTimeout(showSlides, 3000); // Changed to 3 seconds
+        }
+
+        // Manual navigation
+        document.querySelector('.carousel-prev').addEventListener('click', function() {
+            slideIndex = (slideIndex > 1) ? slideIndex - 2 : slides.length - 1;
+            showSlides();
+        });
+
+        document.querySelector('.carousel-next').addEventListener('click', function() {
+            showSlides();
+        });
+
+        // Dot navigation
+        Array.from(dots).forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                slideIndex = index;
+                showSlides();
+            });
+        });
+
+        // Start the slideshow
+        showSlides();
+
+        // Add to Cart functionality
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const loadingOverlay = document.querySelector('.loading-overlay');
+
+                {% if not user.is_authenticated %}
+                    loadingOverlay.style.display = 'flex';
+                    setTimeout(() => {
+                        window.location.href = "{% url 'login' %}";
+                    }, 800);
+                    return;
+                {% endif %}
+
+                const productId = this.getAttribute('data-product-id');
+
+                // Client-side cart update (placeholder)
+                let cart = JSON.parse(localStorage.getItem('rootreachCart')) || [];
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({ id: productId, quantity: 1 });
+                }
+                localStorage.setItem('rootreachCart', JSON.stringify(cart));
+                window.updateCartCount();
+                window.showToast('Added to cart!');
+
+                // Redirect to server-side add-to-cart URL
+                window.location.href = this.getAttribute('href');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Seller Application{% endblock %}
+
+{% block extra_css %}
+<style>
+    .apply-seller-container {
+        margin: 40px auto;
+        max-width: 600px;
+        padding: 0 20px;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .seller-header {
+        background: linear-gradient(135deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+        color: white;
+        padding: 25px 30px;
+        border-radius: 20px 20px 0 0;
+        text-align: center;
+        position: relative;
+    }
+
+    .seller-header h2 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .seller-header::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, #4158D0, #C850C0);
+        border-radius: 2px;
+    }
+
+    .seller-form {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        position: relative;
+    }
+
+    .seller-form .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .seller-form label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #4158D0;
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+    }
+
+    .seller-form input,
+    .seller-form textarea,
+    .seller-form select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #eee;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .seller-form input[type="file"] {
+        padding: 10px;
+        border: 2px dashed #C850C0;
+        background: rgba(200, 80, 192, 0.05);
+        cursor: pointer;
+    }
+
+    .seller-form input:focus,
+    .seller-form textarea:focus,
+    .seller-form select:focus {
+        outline: none;
+        border-color: #C850C0;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(200, 80, 192, 0.1);
+    }
+
+    .seller-form input:focus + label,
+    .seller-form textarea:focus + label,
+    .seller-form select:focus + label {
+        color: #C850C0;
+    }
+
+    .seller-form button {
+        width: 100%;
+        padding: 14px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        background: linear-gradient(135deg, #4158D0 0%, #C850C0 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .seller-form button:hover {
+        background: linear-gradient(135deg, #3647b3 0%, #b33da7 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(65, 88, 208, 0.3);
+    }
+
+    .seller-form button i {
+        font-size: 1.2rem;
+    }
+
+    .error {
+        color: #ff416c;
+        font-size: 0.85rem;
+        margin-top: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        background: rgba(255, 65, 108, 0.1);
+        border-radius: 6px;
+    }
+
+    .error::before {
+        content: '\f071';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .seller-header {
+            padding: 20px;
+        }
+
+        .seller-form {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="apply-seller-container">
+        <!-- Seller Header -->
+        <div class="seller-header">
+            <h2><i class="fas fa-store"></i> Seller Application</h2>
+        </div>
+
+        <!-- Seller Form -->
+        <div class="seller-form">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="error">{{ field.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Apply</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.seller-form form');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', function(e) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Submitting...';
+            
+            // The form will be submitted and page will reload
+            window.showToast('Submitting your application...', 'info');
+        });
+
+        // Add file input enhancement
+        const fileInput = form.querySelector('input[type="file"]');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const fileName = this.files[0].name;
+                    window.showToast(`Selected file: ${fileName}`, 'success');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

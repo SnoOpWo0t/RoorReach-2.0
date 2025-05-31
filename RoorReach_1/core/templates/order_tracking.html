@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}RootReach - Order Tracking{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --gradient-primary: linear-gradient(135deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+        --gradient-secondary: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%);
+        --gradient-success: linear-gradient(120deg, #2ecc71, #27ae60);
+        --gradient-warning: linear-gradient(120deg, #f1c40f, #f39c12);
+        --gradient-danger: linear-gradient(to right, #ff416c, #ff4b2b);
+        --gradient-delivered: linear-gradient(120deg, #f1c40f, #FFD700);
+        --gradient-confirmed: linear-gradient(120deg, #e67e22, #d35400);
+        --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    }
+
+    .order-tracking-container {
+        margin: 40px auto;
+        max-width: 1200px;
+        padding: 0 20px;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        background: var(--gradient-secondary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+        padding-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background: var(--gradient-secondary);
+        border-radius: 2px;
+    }
+
+    .order-table-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-top: 2rem;
+    }
+
+    .order-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .order-table th {
+        background: var(--gradient-secondary);
+        color: white;
+        padding: 1.2rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+
+    .order-table td {
+        padding: 1.2rem 1rem;
+        border-bottom: 1px solid rgba(65, 88, 208, 0.1);
+        vertical-align: middle;
+    }
+
+    .order-table tr:hover {
+        background: rgba(65, 88, 208, 0.05);
+    }
+
+    .status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .status-pending {
+        background: var(--gradient-warning);
+        color: white;
+    }
+
+    .status-confirmed {
+        background: var(--gradient-confirmed);
+        color: white;
+    }
+
+    .status-shipped {
+        background: var(--gradient-success);
+        color: white;
+    }
+
+    .status-delivered {
+        background: var(--gradient-delivered);
+        color: #333;
+    }
+
+    .status-cancelled {
+        background: var(--gradient-danger);
+        color: white;
+    }
+
+    .cancel-btn {
+        background: var(--gradient-danger);
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+    }
+
+    .cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 65, 108, 0.2);
+    }
+
+    .view-messages-btn {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+        margin-bottom: 2rem;
+        box-shadow: var(--box-shadow);
+    }
+
+    .view-messages-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(65, 88, 208, 0.2);
+    }
+
+    .no-orders {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #4a5568;
+    }
+
+    .no-orders i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    @media (max-width: 768px) {
+        .order-tracking-container {
+            padding: 0 15px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .order-table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .view-messages-btn {
+            width: 100%;
+            text-align: center;
+            padding: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="order-tracking-container">
+        <h2 class="section-title">
+            <i class="fas fa-truck"></i>
+            Track Your Orders
+        </h2>
+
+        <a href="{% url 'buyer_messages_in_orders' %}" class="view-messages-btn">
+            <i class="fas fa-envelope"></i> View All Messages
+        </a>
+
+        <div class="order-table-container">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in orders %}
+                        <tr>
+                            <td>{{ o.product.name }}</td>
+                            <td>{{ o.quantity }}</td>
+                            <td>
+                                <span class="status status-{{ o.status|lower }}">
+                                    {{ o.status|title }}
+                                </span>
+                            </td>
+                            <td>{{ o.ordered_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                {% if o.status|lower == "pending" or o.status|lower == "confirmed" %}
+                                    <form method="POST" action="{% url 'cancel_user_order' o.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="cancel-btn" onclick="return confirm('Are you sure?');">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="no-orders">
+                                <i class="fas fa-box-open"></i>
+                                <p>You haven't placed any orders yet.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Confirm cancellation
+        document.querySelectorAll('.cancel-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm("Are you sure you want to cancel this order?")) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
